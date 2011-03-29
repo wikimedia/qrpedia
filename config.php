@@ -1,6 +1,6 @@
 <?php
 	// User Agent for API Requests
-	$user_agent = "QRWP.org - QR Code Mobile Redirection Service. Contact qrwp.org@shkspr.mobi";
+	$user_agent = "";
 	// Write a log file entry for each visitor
 	$myFile = "log.txt";
 	$fh = fopen($myFile, 'a+');
