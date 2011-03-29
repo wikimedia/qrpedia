@@ -1,4 +1,6 @@
 <?php
+	// User Agent for API Requests
+	$user_agent = "";
 	// Write a log file entry for each visitor
 	$myFile = "log.txt";
 	$fh = fopen($myFile, 'a+');
