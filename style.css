@@ -1,0 +1,10 @@
+<style type="text/css">
+	body (font-size:200%)
+	a {text-decoration: underline; font-size:200%}
+	a:link {text-decoration: underline; font-size:200%}
+	a:visited {text-decoration: underline; font-size:200%}
+	a:active {text-decoration: underline; color: blue; font-size:200%}
+	a:hover {text-decoration: underline; color: red; font-size:200%}
+	img {   display: block;   margin-left: auto;   margin-right: auto; margin-top: 10px;margin-bottom: 10px;}
+	div.red{display: block; border-style: solid; color: red;}
+</style>

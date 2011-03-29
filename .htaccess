@@ -1,0 +1,7 @@
+# permanently redirect from www domain to non-www domain
+RewriteEngine on
+Options +FollowSymLinks
+RewriteCond %{HTTP_HOST} ^www\.example\.com$ [NC]
+RewriteRule ^(.*)$ http://example.com/$1 [R=301,L]
+
+RewriteRule ^([^/\.]+)/?$ index.php?title=$1 [L]
