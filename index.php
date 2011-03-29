@@ -34,7 +34,6 @@
 	}
 
 	// If the phone's language is NOT English, find the correct URL for redirection
-
 	/*
 	Wikipedia API Documentation at http://en.wikipedia.org/w/api.php
 	http://en.wikipedia.org/w/api.php?action=query&
@@ -103,13 +102,19 @@
 	<body>
 		<h1>QR -&gt; Wikipedia! Alpha</h1>
 		<?php
-				echo "I don't know what language your phone speaks.";
+			if ($language)
+			{
+				echo "Wikipedia doesn't have an article in your language ($language). Try one of these...";
+			}
+			else
+			{
+				echo "We were unable to determine your language. Try one of these...";
+			}
 		?>
 		<div class="red">
 		<?php
 			// Because we requested an English page, English isn't listed as a translation. Adding it in for completeness
-			echo 	"[en] - " .
-					"<a href='http://en.m.wikipedia.org/wiki/$request'>$request</a><br />";
+			echo 	"[en] <a href='http://en.m.wikipedia.org/wiki/$request'>$request</a><br />";
 			// Itterate through the array
 			for ($i = 0; $i <	count($links_array); $i++)
 			{
@@ -126,9 +131,6 @@
 				echo 	"[$article_language] <a href='$mobile_url'>$article_title</a><br />";
 			}
 		?>
-		</div>
-		<div>
-			<img src="https://chart.googleapis.com/chart?cht=qr&chld=M&chs=500x500&chl=http://QRWP.ORG/<?php echo $request; ?>" />
 		</div>
 		<footer>
 			Site created by <a href="http://twitter.com/edent">Terence Eden</a>.
