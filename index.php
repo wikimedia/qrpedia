@@ -24,14 +24,6 @@
 			$language = $splits[primarytag];
 		} 
 	}
-	
-	// If the phone's language is English, perform a simple redirection
-	if ($language == "en")
-	{
-		$mobile_url = "http://en.m.wikipedia.org/wiki/$request";
-		header("Location: $mobile_url");
-		exit;
-	}
 
 	// If the phone's language is NOT English, find the correct URL for redirection
 	/*
@@ -66,28 +58,38 @@
 	$page_id_array = $results['query']['pages'];
 	$page_id = key($page_id_array);
 	
-	// Find out how many links were returned
-	$links_array = $results['query']['pages'][$page_id]['langlinks'];
-	
-	// Itterate through the array
-	for ($i = 0; $i <	count($links_array); $i++)
+	//If there is no $page_id it means a 404
+	if ($page_id)
 	{
-		// Get the language
-		$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
-		// Get the Wikipedia URL for the language
-		$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
-		// Get the title of the article in the foreign language
-		$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
-
-		// If the language matches - perform the redirection		
-		if ($article_language == $language )
+		// Find out how many links were returned
+		$links_array = $results['query']['pages'][$page_id]['langlinks'];
+	
+		// Itterate through the array
+		for ($i = 0; $i <	count($links_array); $i++)
 		{
-			// Quick and dirty search and replace to convert the URL into a mobile version
-			$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
-			header("Location: $mobile_url");
-			exit;
+			// Get the language
+			$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
+			// Get the Wikipedia URL for the language
+			$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
+			// Get the title of the article in the foreign language
+			$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
+
+			// If the language matches - perform the redirection		
+			if ($article_language == $language )
+			{
+				// Quick and dirty search and replace to convert the URL into a mobile version
+				$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
+				header("Location: $mobile_url");
+				exit;
+			}
+			else 	if ($language == "en")
+			{	// If the phone's language is English, perform a simple redirection
+				$mobile_url = "http://en.m.wikipedia.org/wiki/$request";
+				header("Location: $mobile_url");
+				exit;
+			}
+			// If we can't find the phone's language - or a translation of the article - display the page
 		}
-		// If we can't find the phone's language - or a translation of the article - display the page
 	}
 ?>
 <!DOCTYPE html>
@@ -104,7 +106,7 @@
 		<?php
 			if ($language)
 			{
-				echo "Wikipedia doesn't have an article in your language ($language). Try one of these...";
+				echo "Wikipedia doesn't have that article in your language ($language). Try one of these...";
 			}
 			else
 			{
@@ -113,22 +115,30 @@
 		?>
 		<div class="red">
 		<?php
-			// Because we requested an English page, English isn't listed as a translation. Adding it in for completeness
-			echo 	"[en] <a href='http://en.m.wikipedia.org/wiki/$request'>$request</a><br />";
-			// Itterate through the array
-			for ($i = 0; $i <	count($links_array); $i++)
+			//If there is no $page_id it means a 404
+			if ($page_id != -1)
 			{
-				// Get the language
-				$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
-				// Get the Wikipedia URL for the language
-				$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
-				// Get the title of the article in the foreign language
-				$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
-				// Quick and dirty search and replace to convert the URL into a mobile version
-				$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
+				// Because we requested an English page, English isn't listed as a translation. Adding it in for completeness
+				echo 	"[en] <a href='http://en.m.wikipedia.org/wiki/$request'>$request</a>$page_id<br />";
+				// Itterate through the array
+				for ($i = 0; $i <	count($links_array); $i++)
+				{
+					// Get the language
+					$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
+					// Get the Wikipedia URL for the language
+					$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
+					// Get the title of the article in the foreign language
+					$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
+					// Quick and dirty search and replace to convert the URL into a mobile version
+					$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
 				
-				// Print out the languages, and link the title
-				echo 	"[$article_language] <a href='$mobile_url'>$article_title</a><br />";
+					// Print out the languages, and link the title
+					echo 	"[$article_language] <a href='$mobile_url'>$article_title</a><br />";
+				}
+			}
+			else 
+			{
+
 			}
 		?>
 		</div>
