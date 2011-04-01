@@ -21,11 +21,24 @@
 		
 		if (preg_match($pattern, $lang, $splits)) 
 		{
-			$language = $splits[primarytag];
+			$phone_language = $splits[primarytag];
 		} 
 	}
+	
+	// Get the language requested. For example fr.qrwp.org/foo assumes that /foo is French
+	$requested_server = $_SERVER['SERVER_NAME'];
 
-	// If the phone's language is NOT English, find the correct URL for redirection
+	if ($requested_server != $server_name) // If this has a subdomain
+	{
+		$pieces = explode(".", $requested_server);
+		$requested_language = $pieces[0]; // Assume that only one sub domain has been chosen. "fr.en.de.qrwp.org" will return "fr"
+	}
+	else
+	{
+		$requested_language = $default_language;
+	}
+
+	// Find the correct URL for redirection
 	/*
 	Wikipedia API Documentation at http://en.wikipedia.org/w/api.php
 	http://en.wikipedia.org/w/api.php?action=query&
@@ -38,8 +51,8 @@
 	*/
 
 
-	// Construct the API call - this is to the *ENGLISH* Wikipedia
-	$api_call = "http://en.wikipedia.org/w/api.php?action=query&prop=info|langlinks&lllimit=200&llurl&titles=$request&redirects=&format=json";
+	// Construct the API call - this is to the $default_language Wikipedia
+	$api_call = "http://$requested_language.wikipedia.org/w/api.php?action=query&prop=info|langlinks&lllimit=200&llurl&titles=$request&redirects=&format=json";
 
 	// Use CURL to retrieve the information
 	$curl_handle=curl_init();
@@ -69,27 +82,30 @@
 		{
 			// Get the language
 			$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
-			// Get the Wikipedia URL for the language
-			$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
-			// Get the title of the article in the foreign language
-			$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
 
 			// If the language matches - perform the redirection		
-			if ($article_language == $language )
+			if ($article_language == $phone_language )
 			{
+				// Get the Wikipedia URL for the language
+				$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
+				// Get the title of the article in the foreign language
+				$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
+
 				// Quick and dirty search and replace to convert the URL into a mobile version
 				$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
 				header("Location: $mobile_url");
 				exit;
 			}
-			else 	if ($language == "en")
-			{	// If the phone's language is English, perform a simple redirection
-				$mobile_url = "http://en.m.wikipedia.org/wiki/$request";
-				header("Location: $mobile_url");
-				exit;
-			}
-			// If we can't find the phone's language - or a translation of the article - display the page
 		}
+		// The article wasn't found in the array - this may be because Wikipedia doesn't return the foo URL if the request is to foo.wikipedia
+		if ($default_language == $phone_language)
+		{	// If the phone's language is the default language, perform a simple redirection
+			$mobile_url = "http://$default_language.m.wikipedia.org/wiki/$request";
+			header("Location: $mobile_url");
+			exit;
+		}
+
+		// If we can't find the phone's language - or a translation of the article - display the page
 	}
 ?>
 <!DOCTYPE html>
@@ -104,9 +120,11 @@
 	<body>
 		<h1>QR -&gt; Wikipedia! Alpha</h1>
 		<?php
-			if ($language)
+			if ($phone_language)
 			{
-				echo "Wikipedia doesn't have that article in your language ($language). Try one of these...";
+				echo "requested_language = $requested_language<br />";
+				echo "Wikipedia doesn't have that article in your language ($phone_language). Try one of these...";
+				echo "<pre>" . var_dump($results) . "</pre>";
 			}
 			else
 			{
@@ -119,7 +137,7 @@
 			if ($page_id != -1)
 			{
 				// Because we requested an English page, English isn't listed as a translation. Adding it in for completeness
-				echo 	"[en] <a href='http://en.m.wikipedia.org/wiki/$request'>$request</a>$page_id<br />";
+				echo 	"[$default_language] <a href='http://$default_language.m.wikipedia.org/wiki/$request'>$request</a>$page_id<br />";
 				// Itterate through the array
 				for ($i = 0; $i <	count($links_array); $i++)
 				{
