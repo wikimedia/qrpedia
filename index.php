@@ -22,6 +22,8 @@
 		if (preg_match($pattern, $lang, $splits)) 
 		{
 			$phone_language = $splits[primarytag];
+			// Once the language has been found - no need to continue the loop.
+			break;
 		} 
 	}
 	
@@ -36,6 +38,12 @@
 	else
 	{
 		$requested_language = $default_language;
+	}
+
+	// If the phone hasn't sent through a language header - set it to the requested language
+	if ($phone_language == null)
+	{
+		$phone_language = $requested_language;
 	}
 
 	// Find the correct URL for redirection
@@ -93,6 +101,7 @@
 
 				// Quick and dirty search and replace to convert the URL into a mobile version
 				$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
+				writeLog($mobile_url);
 				header("Location: $mobile_url");
 				exit;
 			}
@@ -101,12 +110,17 @@
 		if ($default_language == $phone_language)
 		{	// If the phone's language is the default language, perform a simple redirection
 			$mobile_url = "http://$default_language.m.wikipedia.org/wiki/$request";
+			writeLog($mobile_url);
 			header("Location: $mobile_url");
 			exit;
 		}
 
-		// If we can't find the phone's language - or a translation of the article - display the page
-	}
+		// If we can't find the phone's language - or a translation of the article - perform a search on the native language wikipedia
+		$mobile_url = "http://$phone_language.m.wikipedia.org/wiki?search=$request";
+		writeLog($mobile_url);
+		header("Location: $mobile_url");
+		exit;	
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -122,9 +136,7 @@
 		<?php
 			if ($phone_language)
 			{
-				echo "requested_language = $requested_language<br />";
 				echo "Wikipedia doesn't have that article in your language ($phone_language). Try one of these...";
-				echo "<pre>" . var_dump($results) . "</pre>";
 			}
 			else
 			{
