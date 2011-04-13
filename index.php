@@ -116,7 +116,8 @@
 		}
 
 		// If we can't find the phone's language - or a translation of the article - perform a search on the native language wikipedia
-		$mobile_url = "http://$phone_language.m.wikipedia.org/wiki?search=$request";
+		// A source parameter is required to fix https://bugzilla.wikimedia.org/show_bug.cgi?id=28510
+		$mobile_url = "http://$phone_language.m.wikipedia.org/wiki?search=$request&source=qrwp";
 		writeLog($mobile_url);
 		header("Location: $mobile_url");
 		exit;	
