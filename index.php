@@ -1,6 +1,5 @@
 <?php
 	include "config.php";
-	include "googleAnalytics.php";
 
 	// An .htaccess file changes example.com/Foo to example.com/?title=foo
 	// Remove any escaped characters. Eg \'
@@ -54,14 +53,13 @@
 		/*
 		Wikipedia API Documentation at http://en.wikipedia.org/w/api.php
 		http://en.wikipedia.org/w/api.php?action=query&
-				prop=info|langlinks&  	//Get page info and alternate languages
+				prop=info|langlinks&		//Get page info and alternate languages
 				lllimit=200&				//Max number of languages to return
 				llurl&						//Get the URLs of alternate languages
-				titles=Rossetta_Stone&	//Title of the page
+				titles=Rossetta_Stone&		//Title of the page
 				redirects=&					//Page may redirect - so get the final page
 				format=json					//Other formats are available. Leave off for human readable XML
 		*/
-
 
 		// Construct the API call - this is to the $default_language Wikipedia
 		$api_call = "http://$requested_language.wikipedia.org/w/api.php?action=query&prop=info|langlinks&lllimit=200&llurl&titles=$request&redirects=&format=json";
@@ -128,64 +126,6 @@
 		}
 	}
 
-// No request was sent - show the default page
-?>
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width; initial-scale=1.0;"/>
-		<meta name="HandheldFriendly" content="true"/>
-		<link rel="stylesheet" href="style.css" type="text/css" />
-		<title>QR -&gt; Wikipedia - <?php echo $response; ?></title>
-	</head>
-	<body>
-		<h1>QR -&gt; Wikipedia! Alpha</h1>
-		<?php
-			if ($phone_language)
-			{
-				echo "Wikipedia doesn't have that article in your language ($phone_language). Try one of these...";
-			}
-			else
-			{
-				echo "We were unable to determine your language. Try one of these...";
-			}
-		?>
-		<div class="red">
-		<?php
-			//If there is no $page_id it means a 404
-			if ($page_id != -1)
-			{
-				// Because we requested an English page, English isn't listed as a translation. Adding it in for completeness
-				echo 	"[$default_language] <a href='http://$default_language.m.wikipedia.org/wiki/$request'>$request</a>$page_id<br />";
-				// Itterate through the array
-				for ($i = 0; $i <	count($links_array); $i++)
-				{
-					// Get the language
-					$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
-					// Get the Wikipedia URL for the language
-					$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
-					// Get the title of the article in the foreign language
-					$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
-					// Quick and dirty search and replace to convert the URL into a mobile version
-					$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
-				
-					// Print out the languages, and link the title
-					echo 	"[$article_language] <a href='$mobile_url'>$article_title</a><br />";
-				}
-			}
-			else 
-			{
-
-			}
-		?>
-		</div>
-		<footer>
-			Site created by <a href="http://twitter.com/edent">Terence Eden</a>.
-		</footer>
-		<?php
-			$googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();
-			echo '<img src="' . $googleAnalyticsImageUrl . '" />';
-		?>
-		</body>
-</html>
+	// No request was sent - send them to the main page
+	header("Location: http://qrpedia.org/");
+	exit;
