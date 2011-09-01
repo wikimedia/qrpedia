@@ -1,5 +1,12 @@
 <?php
 	
+/*
+		SELECT * 
+		FROM stats
+		WHERE `Datetime` between '2011-08-09' and '2011-08-10'
+
+
+*/
 	include "config.php";								
 
 	//	Connect to database
@@ -62,6 +69,34 @@
 	
 	//	Format the data correctly
 	$bar_rows = trim($bar_rows,",");
+	
+	if ($_GET['path'])
+	{
+		$query = "	SELECT Destination, COUNT( Destination )
+						FROM stats
+						WHERE `Path` LIKE '" . $_GET['path'] ."'
+						GROUP BY Destination
+						ORDER BY COUNT( * ) DESC";
+
+		$result = mysql_query($query);
+	}
+
+	$table = 	"<table border=\"1\">
+						<thead>
+							<tr>
+								<th>Language</th>
+								<th>Visits</th>
+							</tr>
+						</thead>
+						<tbody>"	;
+	//	Populate the graph request
+	while($row = mysql_fetch_array($result))
+	{
+		$table .= 		"<tr><td><a href=\"" . $row['Destination'] . "\">" . substr($row['Destination'], 7,2) . "</a></td><td>" . $row['COUNT( Destination )'] . "</td></tr>";
+	}	
+	$table .= 		"</tbody>
+					</table>";
+	
 
 ?>
 <!DOCTYPE HTML>
@@ -123,6 +158,15 @@
 		</script>
 	</head>
 	<body>
+		<div id="destination_table_div">
+		<?php
+			if ($_GET['path']) {
+				echo "<h2>Total Requests for qrwp.org/" . $_GET['path'] . "</h2>";
+				echo $table;
+			}
+		?>
+		</div>
+		<h2>Total QRpedia Statistics</h2>
 		<div id="pie_chart_div"></div>
 		<div id="bar_chart_div"></div>
 	</body>
