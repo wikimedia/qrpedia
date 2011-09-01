@@ -72,9 +72,11 @@
 	
 	if ($_GET['path'])
 	{
+		$path = mysql_real_escape_string($_GET['path']);
+	
 		$query = "	SELECT Destination, COUNT( Destination )
 						FROM stats
-						WHERE `Path` LIKE '" . $_GET['path'] ."'
+						WHERE `Path` LIKE '" . $path ."'
 						GROUP BY Destination
 						ORDER BY COUNT( * ) DESC";
 
@@ -161,7 +163,8 @@
 		<div id="destination_table_div">
 		<?php
 			if ($_GET['path']) {
-				echo "<h2>Total Requests for qrwp.org/" . $_GET['path'] . "</h2>";
+				$path = mysql_real_escape_string($_GET['path']);
+				echo "<h2>Total Requests for qrwp.org/" . htmlspecialchars($path). "</h2>";
 				echo $table;
 			}
 		?>
