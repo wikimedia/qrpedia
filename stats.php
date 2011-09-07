@@ -13,8 +13,8 @@
 	mysql_connect(localhost,$mySQL_username,$mySQL_password);
 	@mysql_select_db($mySQL_database) or die( "Unable to select database");
 	
-	// UA to search for and associated colours
-	$user_agents = array("iPhone",	"iPad",	"iPod",	"Android",	"Nokia",		"BlackBerry",	"Opera",		"Windows Phone OS 7",	"Bada");
+	// UA to search for
+	$user_agents = array("iPhone",	"iPad",	"iPod",	"Android",	"Nokia",		"BlackBerry",	"Opera",		"Windows Phone OS 7",	"MSIE 6",	"Bada");
 
 	//	The initial query
 	$query = "	SELECT COUNT(UA)
@@ -52,8 +52,10 @@
 	
 	
 	//	Get Top 10 QRpedia code destinations
+	// Exclude qrpedia
 	$query = "	SELECT Path, COUNT( * )
 					FROM stats
+					WHERE `Path` NOT LIKE 'qrpedia'
 					GROUP BY Path
 					ORDER BY COUNT( * ) DESC
 					LIMIT 10"; 
