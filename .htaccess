@@ -1,4 +1,15 @@
+order allow,deny
+deny from 183.178.84.87
+allow from all 
+
 RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?title=$1 [L,QSA]
+
+#RewriteEngine on
+#Options +FollowSymLinks
+#RewriteCond %{HTTP_HOST} [NC]
+#RewriteRule ^(.*)$ http://qrwp.org/$1 [R=301,L]
+#RewriteRule ^([^/\.]+)/?$ index.php?title=$1 [L]
+
