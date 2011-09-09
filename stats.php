@@ -16,13 +16,30 @@
 	// UA to search for
 	$user_agents = array("iPhone",	"iPad",	"iPod",	"Android",	"Nokia",		"BlackBerry",	"Opera",		"Windows Phone OS 7",	"MSIE 6",	"Bada");
 
+	$path = null;
+	
+	if ($_GET["path"])
+	{
+		$path = mysql_real_escape_string($_GET["path"]);
+		$path_query = "AND `Path` LIKE '{$path}'";
+	}
+
 	//	The initial query
 	$query = "	SELECT COUNT(UA)
 					FROM `stats`
 					WHERE `UA` LIKE ";
 
 	//	Get the totals
-	$Total_result = mysql_query($query . "'%'");
+	if ($path)
+	{
+		$built_query = $query . "'%' " . $path_query;
+	}
+	else
+	{
+		$built_query = $query . "'%'";
+	}
+
+	$Total_result = mysql_query($built_query);
 	$Total_row = @mysql_fetch_array($Total_result);
 	$Total_count = $Total_row['COUNT(UA)'];
 
@@ -34,18 +51,31 @@
 	//	Itterate through the array and perform the query
 	foreach ($user_agents as $ua) 
 	{
-		$result = mysql_query($query . "'%" . $ua . "%'");
+		if ($path)
+		{
+			$built_query = $query . "'%" . $ua . "%' " . $path_query;
+		}
+		else
+		{
+			$built_query = $query . "'%" . $ua . "%'";
+		}
+		$result = mysql_query($built_query);
 		$row = @mysql_fetch_array($result);
 		$count = $row['COUNT(UA)'];
 
 		$percent = round((($count / $Total_count) * 100), 1);
 		$pie_rows .= "['" . $ua . "', " . $percent . "],";
-		
 		$subtotal += $count;
 	}
 
 	//	All the other UAs not covered in the $user_agents array
 	$Others_count = $Total_count - $subtotal;
+	
+	if ($Others_count < 0)	//	Something screwy is going on...
+	{
+		$Others_count = 0;
+	}
+
 	$Others_percent = round((($Others_count / $Total_count) * 100),1);
 
 	$pie_rows .= "['Others', " . $Others_percent . "]";
@@ -132,7 +162,16 @@
 				]);
 
 				// Set chart options
-				var pie_options = 	{	'title':'Popular Devices on QRpedia',
+				var pie_options = 	{	'title':<?php
+																if ($_GET["path"])
+																{
+																	echo "'Breakdown of Devices Accessing " . htmlspecialchars(mysql_real_escape_string($_GET['path'])) . "'";
+																}
+																else
+																{
+																	echo "'Popular Devices on QRpedia'";
+																}
+														?>,
 										'width':650,
 										'height':400
 									};
@@ -173,6 +212,11 @@
 		</div>
 		<h2>Total QRpedia Statistics</h2>
 		<div id="pie_chart_div"></div>
-		<div id="bar_chart_div"></div>
+		<?php
+			if (!$_GET['path']) 
+			{
+				echo "<div id=\"bar_chart_div\"></div>";
+			}
+		?>
 	</body>
 </html>
