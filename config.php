@@ -7,6 +7,10 @@
 
 	// Default Language
 	$default_language = "en";
+	//	Add logging to MySQL database
+	$mySQL_username="";
+	$mySQL_password="";
+	$mySQL_database="";	
 	
 	function writeLog($Redirected_URL)
 	{
@@ -28,12 +32,12 @@
 
 		$query = "INSERT INTO `".$mySQL_database."`.`stats` (`Datetime`, `UA`, `IP`, `Languages`, `Domain`, `Path`, `Destination`) VALUES ("
 					. "'" . date("y-m-d H:i:s") 
-					. "', '" . $_SERVER['HTTP_USER_AGENT'] 
-					. "', '" . $_SERVER["REMOTE_ADDR"]
-					. "', '" . $_SERVER['HTTP_ACCEPT_LANGUAGE']
-					. "', '" . $_SERVER['SERVER_NAME']
-					. "', '" . $_GET['title']
-					. "', '" . $Redirected_URL
+					. "', '" . mysql_real_escape_string($_SERVER['HTTP_USER_AGENT'])
+					. "', '" . mysql_real_escape_string($_SERVER["REMOTE_ADDR"])
+					. "', '" . mysql_real_escape_string($_SERVER['HTTP_ACCEPT_LANGUAGE'])
+					. "', '" . mysql_real_escape_string($_SERVER['SERVER_NAME'])
+					. "', '" . mysql_real_escape_string($_GET['title'])
+					. "', '" . mysql_real_escape_string($Redirected_URL)
 					. "');";
 
 		$result = mysql_query($query);
