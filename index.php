@@ -1,10 +1,53 @@
 <?php
 	include "config.php";
+	
+	function getLanguageNameFromCode($code)
+	{
+		global $mySQL_username;
+		global $mySQL_password;
+	
+		//	Connect to database
+		$mysqli = new mysqli('localhost', $mySQL_username, $mySQL_password, 'shksprmo_qrwp');
+
+		/* check connection */
+		if (!mysqli_connect_errno()) 
+		{
+			/* change character set to utf8 */
+			$mysqli->set_charset("utf8"); 
+			
+			/* create a prepared statement */
+			if ($stmt = $mysqli->prepare("	SELECT LanguageName
+															FROM lang
+															WHERE `Code`=?"
+												))
+			{
+				/* bind parameters for markers */
+				$stmt->bind_param("s", $code);
+
+				/* execute query */
+				$stmt->execute();
+
+				/* bind result variables */
+				$stmt->bind_result($language_name);
+
+				/* fetch values */
+				$stmt->fetch();
+
+				/* close statement */
+				$stmt->close();
+			}
+			return $language_name;
+		}
+		else	//	If the DB is not available, display the language code
+		{
+			return $code;
+		}
+	}	
 
 	// An .htaccess file changes example.com/Foo to example.com/?title=foo
 	// Remove any escaped characters. Eg \'
 	$request = stripslashes($_GET['title']);
-	
+
 	// If a request has been sent - redirect the user	
 	if ($request != null)
 	{
@@ -38,7 +81,7 @@
 			$pieces = explode(".", $requested_server);
 			$requested_language = $pieces[0]; // Assume that only one sub domain has been chosen. "fr.en.de.qrwp.org" will return "fr"
 		}
-		else
+		else	//	If there is no sub domain, use the default language set in config.php
 		{
 			$requested_language = $default_language;
 		}
@@ -48,20 +91,29 @@
 		{
 			$phone_language = $requested_language;
 		}
+		
+		//	If the phone's language is the same as the requested language (eg en-gb & en.qrwp) do the redirection without a call to Wikipedia 
+		if ($phone_language == $requested_language)
+		{
+			$mobile_url = "http://$requested_language.m.wikipedia.org/wiki/$request";
+			writeLog($mobile_url);
+			header("Location: $mobile_url");
+			exit;
+		}
 
 		// Find the correct URL for redirection
 		/*
 		Wikipedia API Documentation at http://en.wikipedia.org/w/api.php
 		http://en.wikipedia.org/w/api.php?action=query&
-				prop=info|langlinks&		//Get page info and alternate languages
-				lllimit=200&				//Max number of languages to return
-				llurl&						//Get the URLs of alternate languages
-				titles=Rossetta_Stone&		//Title of the page
-				redirects=&					//Page may redirect - so get the final page
-				format=json					//Other formats are available. Leave off for human readable XML
+				prop=info|langlinks&		//	Get page info and alternate languages
+				lllimit=200&				//	Max number of languages to return
+				llurl&						//	Get the URLs of alternate languages
+				titles=Rossetta_Stone&	//	Title of the page
+				redirects=&					//	Page may redirect - so get the final page
+				format=json					//	Other formats are available. Leave off for human readable XML
 		*/
 
-		// Construct the API call - this is to the $default_language Wikipedia
+		// Construct the API call - this is to the $requested_language Wikipedia
 		$api_call = "http://$requested_language.wikipedia.org/w/api.php?action=query&prop=info|langlinks&lllimit=200&llurl&titles=$request&redirects=&format=json";
 
 		// Use CURL to retrieve the information
@@ -80,9 +132,9 @@
 		// We need to find the ID of the page
 		$page_id_array = $results['query']['pages'];
 		$page_id = key($page_id_array);
-	
+		
 		//If there is no $page_id it means a 404
-		if ($page_id)
+		if ($page_id != -1)
 		{
 			// Find out how many links were returned
 			$links_array = $results['query']['pages'][$page_id]['langlinks'];
@@ -93,14 +145,18 @@
 				// Get the language
 				$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
 
-				// If the language matches - perform the redirection		
-				if ($article_language == $phone_language )
+				// If the language matches - perform the redirection
+								//	Catalan Fix
+				// Catalan isn't well supported on the phone.  Many phones don't have it as an option.
+				//	If the URL is ca.qrwp then we do the following
+				// 	If the phone is set to CA - send the article
+				//		Else, show the language select screen
+		
+				if ( ( ($article_language == $phone_language) && ($requested_language != "ca") ) )
 				{
 					// Get the Wikipedia URL for the language
 					$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
-					// Get the title of the article in the foreign language
-					$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
-
+				
 					// Quick and dirty search and replace to convert the URL into a mobile version
 					$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
 					writeLog($mobile_url);
@@ -108,22 +164,99 @@
 					exit;
 				}
 			}
-			// The article wasn't found in the array - this may be because Wikipedia doesn't return the foo URL if the request is to foo.wikipedia
-			if ($default_language == $phone_language)
-			{	// If the phone's language is the default language, perform a simple redirection
-				$mobile_url = "http://$default_language.m.wikipedia.org/wiki/$request";
-				writeLog($mobile_url);
-				header("Location: $mobile_url");
-				exit;
-			}
-
-			// If we can't find the phone's language - or a translation of the article - perform a search on the native language wikipedia
-			// A source parameter is required to fix https://bugzilla.wikimedia.org/show_bug.cgi?id=28510
-			$mobile_url = "http://$phone_language.m.wikipedia.org/wiki?search=$request&source=qrwp";
-			writeLog($mobile_url);
-			header("Location: $mobile_url");
-			exit;	
 		}
+		else	//	404
+		{
+			//	Something has gone wrong
+			//	The article was not found in the requested Wikipedia.
+			// For example, en.qrwp.org/Llibre_de_Domesday  (English request to a Catalan page)
+			// This means either
+			// 1) The page has been removed
+			// 2) Whoever made the QRpedia code made a mistake
+			//	This is a pretty rare edge case
+			// Write 404 into the log
+			//	Send them to their native Wikipedia so they can search for themselves
+			
+			writeLog("404");
+			header("Location: http://$phone_language.m.wikipedia.org/");
+			exit;
+		}
+		
+		
+		//Minority Language / Missing Language
+
+		//	An html list of articles - for use if a translation can't be found
+		// The first in the list will be the article in the requested languge
+		$article_list .= "<li>" . getLanguageNameFromCode($requested_language) . " - <a href=\"http://$requested_language.m.wikipedia.org/wiki/$request\">$request</a></li>\n";
+		
+		// Find out how many links were returned
+		$links_array = $results['query']['pages'][$page_id]['langlinks'];
+
+		// Itterate through the array
+		for ($i = 0; $i <	count($links_array); $i++)
+		{
+			// Get the language
+			$article_language = $results['query']['pages'][$page_id]['langlinks'][$i]['lang'];
+
+			// Get the Wikipedia URL for the language
+			$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
+		
+			// Get the title of the article in the foreign language
+			$article_title = $results['query']['pages'][$page_id]['langlinks'][$i]['*'];
+
+			// Quick and dirty search and replace to convert the URL into a mobile version
+			$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
+			
+			//	Get the Language name
+			$language_name = getLanguageNameFromCode($article_language);
+		
+			//	Add to the HTML list
+			$article_list .= "<li>$language_name - <a href=\"$mobile_url\">$article_title</a></li>\n";
+		}
+		
+		//	Print a list of the available articles and let the user choose
+		header('Content-Type: text/html;charset=utf-8'); //	We're returning lots of unicode, let's make sure the browser knows that
+			
+		//	HTML5 FTW!
+		echo "<!DOCTYPE html>
+				<html>
+					<head>
+						<meta charset=utf-8 />
+						<meta name=\"viewport\" content=\"width=device-width; initial-scale=1.0;\" />
+						<title>QRpedia Language Selection for $request</title>
+					</head>
+					<body>";
+		
+		//	Catalan Fix
+		// Catalan isn't well supported on the phone.  Many phones don't have it as an option.
+		//	If the URL is ca.qrwp then we do the following
+		//		Show the language select screen
+		
+		if ($requested_language == "ca" && $phone_language != "ca")
+		{
+			echo "CA: En quin idioma vols llegir aquest article?<br />
+					ES: ¿En qué idioma quieres leer este artículo?<br />
+					EN: Which language would you like to read this article in?<br />";
+		}
+		else
+		{
+			echo	"Sorry, but Wikipedia does not have the page \"$request\" in your language ($phone_language).<br />\n";
+			echo	"Please try reading the <a href=\"http://translate.google.com/translate?tl=$phone_language&u=http%3A%2F%2F$requested_language.m.wikipedia.org%2Fwiki%2F$request\">Google auto-translated version</a>.
+					<br />
+					<br />
+					Or read in one of the following languages:
+					<br />\n";
+		}
+			
+		echo	"<ul>
+					$article_list
+				</ul>";
+		echo "</body>
+			</html>";
+			
+		writeLog("NA");
+			
+		exit;
 	}
 
 	// No request was sent - send them to the main page
