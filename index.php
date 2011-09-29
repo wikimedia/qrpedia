@@ -5,9 +5,10 @@
 	{
 		global $mySQL_username;
 		global $mySQL_password;
+		global $mySQL_database;
 	
 		//	Connect to database
-		$mysqli = new mysqli('localhost', $mySQL_username, $mySQL_password, 'shksprmo_qrwp');
+		$mysqli = new mysqli('localhost', $mySQL_username, $mySQL_password, $mySQL_database);
 
 		/* check connection */
 		if (!mysqli_connect_errno()) 
@@ -159,6 +160,7 @@
 				
 					// Quick and dirty search and replace to convert the URL into a mobile version
 					$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
+					$mobile_url = utf8_decode($mobile_url);
 					writeLog($mobile_url);
 					header("Location: $mobile_url");
 					exit;
@@ -177,9 +179,9 @@
 			// Write 404 into the log
 			//	Send them to their native Wikipedia so they can search for themselves
 			
-			writeLog("404");
-			header("Location: http://$phone_language.m.wikipedia.org/");
-			exit;
+			//writeLog("404");
+			//header("Location: http://$phone_language.m.wikipedia.org/");
+			//exit;
 		}
 		
 		
