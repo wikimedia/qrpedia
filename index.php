@@ -93,6 +93,13 @@
 			$phone_language = $requested_language;
 		}
 		
+		//	The Norwegian language code is... complex!
+		//	See http://code.google.com/p/qrwp/issues/detail?id=4 for a discussion
+		if ($phone_language == "nb")
+		{
+			$phone_language = "no";
+		}
+		
 		//	If the phone's language is the same as the requested language (eg en-gb & en.qrwp) do the redirection without a call to Wikipedia 
 		if ($phone_language == $requested_language)
 		{
