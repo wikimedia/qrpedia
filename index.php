@@ -97,6 +97,7 @@
 		if ($phone_language == $requested_language)
 		{
 			$mobile_url = "http://$requested_language.m.wikipedia.org/wiki/$request";
+			$mobile_url = utf8_decode($mobile_url);
 			writeLog($mobile_url);
 			header("Location: $mobile_url");
 			exit;
