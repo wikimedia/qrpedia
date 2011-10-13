@@ -96,7 +96,7 @@
 	//	Populate the graph request
 	while($row = mysql_fetch_array($result))
 	{
-		$bar_rows .= "['" . $row['Path'] . "', " . $row['COUNT( * )'] . "],";
+		$bar_rows .= "['" . urlencode($row['Path']) . "', " . $row['COUNT( * )'] . "],";
 	}	
 	
 	//	Format the data correctly
@@ -133,7 +133,15 @@
 		//	Populate the graph request
 		while($row = mysql_fetch_array($result))
 		{
-			$table .= 		"<tr><td><a href=\"" . $row['Destination'] . "\">" . substr($row['Destination'], 7,2) . "</a></td><td>" . $row['COUNT( Destination )'] . "</td></tr>";
+			$dest = htmlspecialchars($row['Destination']);
+			$lang_code = substr($row['Destination'], 7,2);
+			if ($dest == "NA")
+			{
+				$dest = "";
+				$lang_code = "N/A";
+			}
+		
+			$table .= 		"<tr><td><a href=\"$dest\">$lang_code</a></td><td>" . $row['COUNT( Destination )'] . "</td></tr>";
 		}	
 		$table .= 		"</tbody>
 						</table>";
