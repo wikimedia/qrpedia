@@ -161,8 +161,15 @@
 				// 	If the phone is set to CA - send the article
 				//		Else, show the language select screen
 		
-				if ( ( ($article_language == $phone_language) && ($requested_language != "ca") ) )
+				if ($article_language == $phone_language) 
 				{
+				
+					if ($requested_language == "ca" && $phone_language == "es")
+					{
+						//	Catalan Fix
+						break;
+					}
+					
 					// Get the Wikipedia URL for the language
 					$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
 				
