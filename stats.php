@@ -181,6 +181,40 @@
 							. "]);\n";
 		}		
 	}
+	else
+	{
+		$daily_query = "SELECT COUNT( * ), DATE(`Datetime`) as scan_day
+									FROM stats
+									GROUP BY scan_day";
+									
+		$daily_result = mysql_query($daily_query);
+		
+		//	Populate the daily graph request
+		$daily_js = "	daily_data.addColumn('string', 'Day');\n
+							daily_data.addColumn('number', 'Visits');\n";
+	
+		$daily_table = "	var daily_table = new google.visualization.DataTable();\n
+								daily_table.addColumn('string', 'Date');\n
+								daily_table.addColumn('number', 'Visits');\n";
+
+	
+		while($row = mysql_fetch_array($daily_result))
+		{
+			$daily_js .= "daily_data.addRow([\"" 
+							. $row['scan_day'] 
+							. "\"," 
+							. $row['COUNT( * )'] 
+							. "]);\n";
+							
+			//$daily_table .= "		<tr><td>" . $row['scan_day'] . "</td><td>" . $row['COUNT( * )'] . "</td></tr>";
+			$daily_table .= "daily_table.addRow([\"" 
+							. $row['scan_day'] 
+							. "\"," 
+							. $row['COUNT( * )'] 
+							. "]);\n";
+		}	
+	
+	}
 ?>
 <!DOCTYPE HTML>
 <html lang="en">
@@ -256,10 +290,7 @@
 				?>
 				var chart = new google.visualization.LineChart(document.getElementById('daily_div'));
 				<?php
-					if ($_GET["path"])
-					{
-						echo "chart.draw(daily_data, {width: 600, height: 300, title: 'Daily Visits to " . htmlspecialchars(mysql_real_escape_string($_GET['path'])) . "'});";
-					}
+					echo "chart.draw(daily_data, {width: 600, height: 300, title: 'Daily Visits to " . htmlspecialchars(mysql_real_escape_string($_GET['path'])) . "'});";
 				?>
 			}
 
@@ -271,32 +302,27 @@
 				?>
 				// Create and draw the visualization.
 				dailyTable = new google.visualization.Table(document.getElementById('daily_table_div'));
-				dailyTable.draw(daily_table, {width: 150, height: 800, title: 'Daily Table'});
+				dailyTable.draw(daily_table, {width: 150, height: 2048, title: 'Daily Table'});
 
 			}
 			<?php
-				if ($_GET["path"])
-				{
-					echo "google.setOnLoadCallback(drawDailyChart);\n";
-					echo "google.setOnLoadCallback(drawDailyTable);";
-				}
+				echo "google.setOnLoadCallback(drawDailyChart);\n";
+				echo "google.setOnLoadCallback(drawDailyTable);";
 			?>
 		</script>
 	</head>
 	<body>
 		<?php
-			if ($_GET['path']) {
-				$path = mysql_real_escape_string($_GET['path']);
-				echo "<h2>Total Requests for qrwp.org/" . htmlspecialchars($path). "</h2>";
-				echo "<div id=\"destination_table_div\">";
-				echo $table;
-				echo "</div>";
+			$path = mysql_real_escape_string($_GET['path']);
+			echo "<h2>Total Requests for qrwp.org/" . htmlspecialchars($path). "</h2>";
+			echo "<div id=\"destination_table_div\">";
+			echo $table;
+			echo "</div>";
 
-				echo "<h2>Daily Requests for qrwp.org/" . htmlspecialchars($path). "</h2>";
-				echo "<div id=\"daily_table_div\" style=\"float:left\">";
-				echo "</div>";
-				echo "<div id=\"daily_div\" style=\"float:left\"></div>";
-			}
+			echo "<h2>Daily Requests for qrwp.org/" . htmlspecialchars($path). "</h2>";
+			echo "<div id=\"daily_table_div\" style=\"float:left\">";
+			echo "</div>";
+			echo "<div id=\"daily_div\" style=\"float:left\"></div>";
 
 			echo "<div id=\"pie_chart_div\" style=\"float:right\"></div>";
 
