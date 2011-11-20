@@ -313,19 +313,25 @@
 	</head>
 	<body>
 		<?php
-			$path = mysql_real_escape_string($_GET['path']);
-			echo "<h2>Total Requests for qrwp.org/" . htmlspecialchars($path). "</h2>";
-			echo "<div id=\"destination_table_div\">";
-			echo $table;
-			echo "</div>";
-
-			echo "<h2>Daily Requests for qrwp.org/" . htmlspecialchars($path). "</h2>";
-			echo "<div id=\"daily_table_div\" style=\"float:left\">";
-			echo "</div>";
+			//$path = mysql_real_escape_string($_GET['path']);
+			$path = $_GET['path'];
+			
+			echo "<h2>Daily QRpedia Requests for \"" . htmlspecialchars($path). "\"</h2>";
 			echo "<div id=\"daily_div\" style=\"float:left\"></div>";
 
 			echo "<div id=\"pie_chart_div\" style=\"float:right\"></div>";
+			echo "<hr />";
+			echo "<h2>Different Language Requests for \"" . htmlspecialchars($path). "\"</h2>";
+			echo "<div id=\"destination_table_div\">";
+			echo 		$table;
+			echo "</div>";
+			echo "<hr />";
+			
+			echo "<h2>Daily QRpedia Requests for \"" . htmlspecialchars($path). "\"</h2>";
+			echo "<div id=\"daily_table_div\" style=\"float:left\">";
+			echo "</div>";
 
+			
 			if (!$_GET['path']) 
 			{
 				echo "<h2>Total QRpedia Statistics</h2>";
