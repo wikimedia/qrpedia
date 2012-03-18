@@ -103,9 +103,8 @@
 		//	If the phone's language is the same as the requested language (eg en-gb & en.qrwp) do the redirection without a call to Wikipedia 
 		if ($phone_language == $requested_language)
 		{
-			$mobile_url = "http://$requested_language.m.wikipedia.org/wiki/$request";
-			$mobile_url = utf8_decode($mobile_url);
-			writeLog($mobile_url);
+			$mobile_url = "http://$requested_language.m.wikipedia.org/wiki/" . urlencode($request);
+			writeLog(urldecode($mobile_url));
 			header("Location: $mobile_url");
 			exit;
 		}
