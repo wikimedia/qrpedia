@@ -36,6 +36,9 @@
 				
 				<div id="language_area" class="language_area">&nbsp;
 				</div>
+				
+				<div id="statistics_area" class="statistics_area">&nbsp;
+				</div>
 						
 				<div id="bottom">
 					<a href="http://qrpedia.org/blog/" target="_blank">Blog</a> - <a href="http://qrpedia.org/blog/privacy/" target="_blank">Privacy</a> - <a href="http://qrpedia.org/blog/credits/" target="_blank">Credits</a>
@@ -43,12 +46,35 @@
 				
 			</div>
 		</div>
+		<div style="border: 1px solid rgb(0, 0, 0); padding: 10px; display: none; position: absolute; background-color: rgb(238, 238, 238);" id="menu"><a id="download-menu" class="download-menu" >Download QRpedia Code</a></div>
 		<script src="http://code.jquery.com/jquery.min.js"></script>
 		<script>
 		$(document).ready(function(){
 		
 		});
-		
+	
+		//	Display the right-click menu	
+		$('#qr_area').bind("contextmenu", function(e) {
+			$('#menu').css({
+				top: e.pageY+'px',
+				left: e.pageX+'px'
+			}).show();
+
+			return false;
+		});
+
+		//	Close the right-click menu
+		$(document).ready(function() {
+
+			$('#menu').click(function() {
+				$('#menu').hide();
+			});
+			$(document).click(function() {
+				$('#menu').hide();
+			});
+
+		});
+
 		//	As a URL is typed or pasted
 		$('.url').each(function() {
 			// Save current value of element
@@ -111,10 +137,16 @@
 										$('.qr').attr('src','http://qrpedia.org/qr/php/qr.php?size=345&e=L&d='+encodeURI(encodeURI(new_URL)));
 						
 										//	Add the download link to the page
-										$('.download').attr('href','http://qrpedia.org/qr/php/qr.php?size=800&download='+new_URL+'&e=L&d='+encodeURI(encodeURI(new_URL)));
+										$('.download').attr('href','http://qrpedia.org/qr/php/qr.php?size=800&download='+path+'%20QRpedia&e=L&d='+encodeURI(encodeURI(new_URL)));
+
+										//	Add the download link to the right-click menu
+										$('.download-menu').attr('href','http://qrpedia.org/qr/php/qr.php?size=800&download='+path+'%20QRpedia&e=L&d='+encodeURI(encodeURI(new_URL)));
 
 										//	Place the text on the page
 										$('div.language_area').text('The article will be available in '+count+' languages');
+									
+										//	Place the text on the page
+										$('div.statistics_area').append('<a href="http://qrpedia.org/stats.php?path='+path+'">Statistics</a>');
 									}
 									
 									if (data.query.pages[-1])
