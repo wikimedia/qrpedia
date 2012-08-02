@@ -146,7 +146,7 @@
 										$('div.language_area').text('The article will be available in '+count+' languages');
 									
 										//	Place the text on the page
-										$('div.statistics_area').append('<a href="http://qrpedia.org/stats.php?path='+path+'">Statistics</a>');
+										$('div.statistics_area').html('<a href="http://qrpedia.org/stats.php?path='+path+'">Statistics</a>');
 									}
 									
 									if (data.query.pages[-1])
