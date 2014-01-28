@@ -134,13 +134,13 @@
 										}
 
 										//	Add the image to the page
-										$('.qr').attr('src','http://qrpedia.org/qr/php/qr.php?size=345&e=L&d='+encodeURI(encodeURI(new_URL)));
+										$('.qr').attr('src','qr/php/qr.php?size=345&e=L&d='+encodeURI(encodeURI(new_URL)));
 						
 										//	Add the download link to the page
-										$('.download').attr('href','http://qrpedia.org/qr/php/qr.php?size=800&download='+path+'%20QRpedia&e=L&d='+encodeURI(encodeURI(new_URL)));
+										$('.download').attr('href','qr/php/qr.php?size=800&download='+path+'%20QRpedia&e=L&d='+encodeURI(encodeURI(new_URL)));
 
 										//	Add the download link to the right-click menu
-										$('.download-menu').attr('href','http://qrpedia.org/qr/php/qr.php?size=800&download='+path+'%20QRpedia&e=L&d='+encodeURI(encodeURI(new_URL)));
+										$('.download-menu').attr('href','qr/php/qr.php?size=800&download='+path+'%20QRpedia&e=L&d='+encodeURI(encodeURI(new_URL)));
 
 										//	Place the text on the page
 										$('div.language_area').text('The article will be available in '+count+' languages');
