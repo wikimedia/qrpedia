@@ -31,9 +31,8 @@
 									VALUES 	(?,				?,		?,		?,				 	?,				?,			?)"
 												)
 				)
-			{		
-				$stmt->bind_param('sssssss', 
-												$datetime, 		$ua, 	$ip, 	$languages, 	$domain, 	$path, 	$destination);
+			{
+				$stmt->bind_param('sssssss', $datetime, $ua, $ip, $languages, $domain, $path, $destination);
 
 				$datetime = date("Y-m-d H:i:s");
 				$ua = $_SERVER['HTTP_USER_AGENT'];
@@ -42,13 +41,13 @@
 				$domain = $_SERVER['SERVER_NAME'];
 				$path = stripslashes($_GET['title']);
 				$destination = $Redirected_URL;
-		
+
 				/* execute prepared statement */
 				$stmt->execute();
 
 				/* close statement and connection */
 				$stmt->close();
-				
+
 				// Write a log file entry for each visitor
 				$myFile = "log.txt";
 				$fh = fopen($myFile, 'a+');

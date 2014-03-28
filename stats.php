@@ -1,23 +1,22 @@
 <?php
-	
+
 /*
-		SELECT * 
+		SELECT *
 		FROM stats
 		WHERE `Datetime` between '2011-08-09' and '2011-08-10'
-
-
 */
-	include "config.php";								
+
+	include "config.php";
 
 	//	Connect to database
 	mysql_connect(localhost,$mySQL_username,$mySQL_password);
 	@mysql_select_db($mySQL_database) or die( "Unable to select database");
-	
+
 	// UA to search for
 	$user_agents = array("iPhone",	"iPad",	"iPod",	"Android",	"Nokia",		"BlackBerry",	"Opera",		"Windows Phone OS 7",	"MSIE 6",	"Bada");
 
 	$path = null;
-	
+
 	if ($_GET["path"])
 	{
 		$path = mysql_real_escape_string($_GET["path"]);
@@ -70,7 +69,7 @@
 
 	//	All the other UAs not covered in the $user_agents array
 	$Others_count = $Total_count - $subtotal;
-	
+
 	if ($Others_count < 0)	//	Something screwy is going on...
 	{
 		$Others_count = 0;
@@ -79,8 +78,7 @@
 	$Others_percent = round((($Others_count / $Total_count) * 100),1);
 
 	$pie_rows .= "['Others', " . $Others_percent . "]";
-	
-	
+
 	//	Get Top 10 QRpedia code destinations
 	// Exclude qrpedia
 	$query = "	SELECT Path, COUNT( * )
@@ -92,20 +90,20 @@
 
 	$result = mysql_query($query);
 
-	
+
 	//	Populate the graph request
 	while($row = mysql_fetch_array($result))
 	{
 		$bar_rows .= "['" . urlencode($row['Path']) . "', " . $row['COUNT( * )'] . "],";
-	}	
-	
+	}
+
 	//	Format the data correctly
 	$bar_rows = trim($bar_rows,",");
-	
+
 	if ($_GET['path'])
 	{
 		$path = mysql_real_escape_string($_GET['path']);
-	
+
 		$query = "	SELECT Destination, COUNT( Destination )
 						FROM stats
 						WHERE `Path` LIKE '" . $path ."'
@@ -113,14 +111,14 @@
 						ORDER BY COUNT( * ) DESC";
 
 		$result = mysql_query($query);
-		
+
 		$daily_query = "	SELECT COUNT( * ), DATE(`Datetime`) as scan_day
 									FROM stats
 									WHERE `Path` LIKE '" . $path . "'
 									GROUP BY scan_day";
-									
+
 		$daily_result = mysql_query($daily_query);
-	
+
 
 		$table = 	"<table border=\"1\">
 							<thead>
@@ -129,7 +127,7 @@
 									<th>Visits</th>
 								</tr>
 							</thead>
-							<tbody>"	;
+							<tbody>";
 		//	Populate the graph request
 		while($row = mysql_fetch_array($result))
 		{
@@ -142,10 +140,9 @@
 			}
 		
 			$table .= 		"<tr><td><a href=\"$dest\">$lang_code</a></td><td>" . $row['COUNT( Destination )'] . "</td></tr>";
-		}	
+		}
 		$table .= 		"</tbody>
 						</table>";
-	
 
 		$daily_table = "	<table border=\"1\">
 									<thead>
@@ -159,7 +156,7 @@
 		//	Populate the daily graph request
 		$daily_js = "	daily_data.addColumn('string', 'Day');\n
 							daily_data.addColumn('number', 'Visits');\n";
-	
+
 		$daily_table = "	var daily_table = new google.visualization.DataTable();\n
 								daily_table.addColumn('string', 'Date');\n
 								daily_table.addColumn('number', 'Visits');\n";
@@ -172,32 +169,32 @@
 							. "\"," 
 							. $row['COUNT( * )'] 
 							. "]);\n";
-							
+
 			//$daily_table .= "		<tr><td>" . $row['scan_day'] . "</td><td>" . $row['COUNT( * )'] . "</td></tr>";
 			$daily_table .= "daily_table.addRow([\"" 
 							. $row['scan_day'] 
 							. "\"," 
 							. $row['COUNT( * )'] 
 							. "]);\n";
-		}		
+		}
 	}
 	else
 	{
 		$daily_query = "SELECT COUNT( * ), DATE(`Datetime`) as scan_day
 									FROM stats
 									GROUP BY scan_day";
-									
+
 		$daily_result = mysql_query($daily_query);
 		
 		//	Populate the daily graph request
 		$daily_js = "	daily_data.addColumn('string', 'Day');\n
 							daily_data.addColumn('number', 'Visits');\n";
-	
+
 		$daily_table = "	var daily_table = new google.visualization.DataTable();\n
 								daily_table.addColumn('string', 'Date');\n
 								daily_table.addColumn('number', 'Visits');\n";
 
-	
+
 		while($row = mysql_fetch_array($daily_result))
 		{
 			$daily_js .= "daily_data.addRow([\"" 
@@ -205,15 +202,15 @@
 							. "\"," 
 							. $row['COUNT( * )'] 
 							. "]);\n";
-							
+
 			//$daily_table .= "		<tr><td>" . $row['scan_day'] . "</td><td>" . $row['COUNT( * )'] . "</td></tr>";
 			$daily_table .= "daily_table.addRow([\"" 
 							. $row['scan_day'] 
 							. "\"," 
 							. $row['COUNT( * )'] 
 							. "]);\n";
-		}	
-	
+		}
+
 	}
 ?>
 <!DOCTYPE HTML>
@@ -296,7 +293,7 @@
 
 			function drawDailyTable()
 			{
-			
+
 				<?php
 					echo $daily_table;
 				?>
@@ -323,15 +320,14 @@
 			echo "<hr />";
 			echo "<h2>Different Language Requests for \"" . htmlspecialchars($path). "\"</h2>";
 			echo "<div id=\"destination_table_div\">";
-			echo 		$table;
+			echo $table;
 			echo "</div>";
 			echo "<hr />";
-			
+
 			echo "<h2>Daily QRpedia Requests for \"" . htmlspecialchars($path). "\"</h2>";
 			echo "<div id=\"daily_table_div\" style=\"float:left\">";
 			echo "</div>";
 
-			
 			if (!$_GET['path']) 
 			{
 				echo "<h2>Total QRpedia Statistics</h2>";
