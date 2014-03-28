@@ -9,11 +9,22 @@
 	include "config.php";
 
 	//	Connect to database
-	mysql_connect(localhost,$mySQL_username,$mySQL_password);
+	mysql_connect('localhost',$mySQL_username,$mySQL_password);
 	@mysql_select_db($mySQL_database) or die( "Unable to select database");
 
 	// UA to search for
-	$user_agents = array("iPhone",	"iPad",	"iPod",	"Android",	"Nokia",		"BlackBerry",	"Opera",		"Windows Phone OS 7",	"MSIE 6",	"Bada");
+	$user_agents = array(
+		"iPhone",
+		"iPad",
+		"iPod",
+		"Android",
+		"Nokia",
+		"BlackBerry",
+		"Opera",
+		"Windows Phone OS 7",
+		"MSIE 6",
+		"Bada"
+	);
 
 	$path = null;
 
@@ -81,7 +92,7 @@
 
 	//	Get Top 10 QRpedia code destinations
 	// Exclude qrpedia
-	$query = "	SELECT Path, COUNT( * )
+	$query = "SELECT Path, COUNT( * )
 					FROM stats
 					WHERE `Path` NOT LIKE 'qrpedia'
 					GROUP BY Path

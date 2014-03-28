@@ -17,7 +17,7 @@
 			$mysqli->set_charset("utf8"); 
 			
 			/* create a prepared statement */
-			if ($stmt = $mysqli->prepare("	SELECT LanguageName
+			if ($stmt = $mysqli->prepare("SELECT LanguageName
 															FROM lang
 															WHERE `Code`=?"
 												))
@@ -73,7 +73,7 @@
 				break;
 			} 
 		}
-	
+
 		// Get the language requested. For example fr.qrwp.org/foo assumes that /foo is French
 		$requested_server = $_SERVER['SERVER_NAME'];
 
@@ -92,14 +92,14 @@
 		{
 			$phone_language = $requested_language;
 		}
-		
+
 		//	The Norwegian language code is... complex!
 		//	See http://code.google.com/p/qrwp/issues/detail?id=4 for a discussion
 		if ($phone_language == "nb")
 		{
 			$phone_language = "no";
 		}
-		
+
 		//	If the phone's language is the same as the requested language (eg en-gb & en.qrwp) do the redirection without a call to Wikipedia 
 		if ($phone_language == $requested_language)
 		{
@@ -133,20 +133,20 @@
 		$response = curl_exec($curl_handle);
 		$response_info=curl_getinfo($curl_handle);
 		curl_close($curl_handle);
-	
+
 		// Decode the JSON into an array
 		$results = json_decode($response,true);
 
 		// We need to find the ID of the page
 		$page_id_array = $results['query']['pages'];
 		$page_id = key($page_id_array);
-		
+
 		//If there is no $page_id it means a 404
 		if ($page_id != -1)
 		{
 			// Find out how many links were returned
 			$links_array = $results['query']['pages'][$page_id]['langlinks'];
-	
+
 			// Itterate through the array
 			for ($i = 0; $i <	count($links_array); $i++)
 			{
@@ -159,19 +159,19 @@
 				//	If the URL is ca.qrwp then we do the following
 				// 	If the phone is set to CA - send the article
 				//		Else, show the language select screen
-		
+
 				if ($article_language == $phone_language) 
 				{
-				
+
 					if ($requested_language == "ca" && $phone_language == "es")
 					{
 						//	Catalan Fix
 						break;
 					}
-					
+
 					// Get the Wikipedia URL for the language
 					$article_url = $results['query']['pages'][$page_id]['langlinks'][$i]['url'];
-				
+
 					// Quick and dirty search and replace to convert the URL into a mobile version
 					$mobile_url = str_replace('.wikipedia.org', '.m.wikipedia.org', $article_url);
 					$mobile_url = utf8_decode($mobile_url);
@@ -197,8 +197,8 @@
 			//header("Location: http://$phone_language.m.wikipedia.org/");
 			//exit;
 		}
-		
-		
+
+
 		//Minority Language / Missing Language
 
 		//	An html list of articles - for use if a translation can't be found
@@ -225,14 +225,14 @@
 			
 			//	Get the Language name
 			$language_name = getLanguageNameFromCode($article_language);
-		
+
 			//	Add to the HTML list
 			$article_list .= "<li>$language_name - <a href=\"$mobile_url\">$article_title</a></li>\n";
 		}
-		
+
 		//	Print a list of the available articles and let the user choose
 		header('Content-Type: text/html;charset=utf-8'); //	We're returning lots of unicode, let's make sure the browser knows that
-			
+
 		//	HTML5 FTW!
 		echo "<!DOCTYPE html>
 				<html>
@@ -242,12 +242,12 @@
 						<title>QRpedia Language Selection for $request</title>
 					</head>
 					<body>";
-		
+
 		//	Catalan Fix
 		// Catalan isn't well supported on the phone.  Many phones don't have it as an option.
 		//	If the URL is ca.qrwp then we do the following
 		//		Show the language select screen
-		
+
 		if ($requested_language == "ca" && $phone_language != "ca")
 		{
 			echo "CA: En quin idioma vols llegir aquest article?<br />
@@ -263,7 +263,7 @@
 					Or read in one of the following languages:
 					<br />\n";
 		}
-			
+
 		echo	"<ul>
 					$article_list
 				</ul>";

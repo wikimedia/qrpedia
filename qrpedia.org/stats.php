@@ -3,7 +3,7 @@
 	include "config.php";
 
 	//	Connect to database
-	mysql_connect(localhost,$mySQL_username,$mySQL_password);
+	mysql_connect('localhost',$mySQL_username,$mySQL_password);
 	@mysql_select_db($mySQL_database) or die( "Unable to select database");
 
 	// UA to search for

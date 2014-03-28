@@ -75,7 +75,7 @@
                 if (original_URL.indexOf('wikipedia.org/wiki/') > 0) {
 
                     // Get Encoding status
-                    var is_URL_encoded = decodeURI(original_URL) === original_URL ? false : true;
+                    var is_URL_encoded = decodeURI(original_URL) !== original_URL;
 
                     // Form a qrwp URL
                     var new_URL = original_URL.replace('wikipedia.org/wiki/', 'qrwp.org/');
