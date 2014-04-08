@@ -52,7 +52,7 @@
 
 	$pie_rows = "";
 
-	//	Itterate through the array and perform the query
+	//	Iterate through the array and perform the query
 	foreach ( $user_agents as $ua ) {
 		if ( $path ) {
 			$built_query = $query . "'%" . $ua . "%' " . $path_query;

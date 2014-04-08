@@ -186,7 +186,7 @@
 		//Minority Language / Missing Language
 
 		//	An html list of articles - for use if a translation can't be found
-		// The first in the list will be the article in the requested languge
+		// The first in the list will be the article in the requested language
 		$article_list .= '<li>' . getLanguageNameFromCode( $requested_language ) . " - <a href=\"http://$requested_language.m.wikipedia.org/wiki/$request\">$request</a></li>\n";
 
 		// Find out how many links were returned
