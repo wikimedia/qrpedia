@@ -1,25 +1,25 @@
 <?php
 
-	include "config.php";
+	include 'config.php';
 
 	//	Connect to database
 	mysql_connect( 'localhost', $mySQL_username, $mySQL_password );
-	@mysql_select_db( $mySQL_database ) or die( "Unable to select database" );
+	@mysql_select_db( $mySQL_database ) or die( 'Unable to select database' );
 
 	// UA to search for
-	$user_agents = array( "iPhone", "iPad", "iPod", "Android", "Nokia", "BlackBerry", "Opera", "Windows Phone OS 7", "MSIE 6", "Bada" );
+	$user_agents = array( 'iPhone', 'iPad', 'iPod', 'Android', 'Nokia', 'BlackBerry', 'Opera', 'Windows Phone OS 7', 'MSIE 6', 'Bada' );
 
 	$path = null;
 
-	if ( $_GET["path"] ) {
-		$path = mysql_real_escape_string( $_GET["path"] );
+	if ( $_GET['path'] ) {
+		$path = mysql_real_escape_string( $_GET['path'] );
 		$path_query = "AND `Path` LIKE '{$path}'";
 	}
 
 	//	The initial query
-	$query = "SELECT COUNT(UA)
+	$query = 'SELECT COUNT(UA)
 				FROM `stats`
-				WHERE `UA` LIKE ";
+				WHERE `UA` LIKE ';
 
 	//	Get the totals
 	if ( $path ) {
@@ -131,12 +131,12 @@
 		while ( $row = mysql_fetch_array( $result ) ) {
 			$dest = htmlspecialchars( $row['Destination'] );
 			$lang_code = substr( $row['Destination'], 7, 2 );
-			if ( $dest == "NA" ) {
-				$dest = "";
-				$lang_code = "N/A";
+			if ( $dest == 'NA' ) {
+				$dest = '';
+				$lang_code = 'N/A';
 			}
 
-			$table .= "<tr><td><a href=\"$dest\">$lang_code</a></td><td>" . $row['COUNT( Destination )'] . "</td></tr>";
+			$table .= '<tr><td><a href="$dest">$lang_code</a></td><td>' . $row['COUNT( Destination )'] . "</td></tr>";
 		}
 		$table .= "</tbody>
 						</table>";
@@ -161,20 +161,20 @@
 		while ( $row = mysql_fetch_array( $daily_result ) ) {
 			$daily_js .= "daily_data.addRow([\""
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
 				. "]);\n";
 			//$daily_table .= "		<tr><td>" . $row['scan_day'] . "</td><td>" . $row['COUNT( * )'] . "</td></tr>";
 			$daily_table .= "daily_table.addRow([\""
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
 				. "]);\n";
 		}
 	} else {
-		$daily_query = "SELECT COUNT( * ), DATE(`Datetime`) as scan_day
+		$daily_query = 'SELECT COUNT( * ), DATE(`Datetime`) as scan_day
 							FROM stats
-							GROUP BY scan_day";
+							GROUP BY scan_day';
 
 		$daily_result = mysql_query( $daily_query );
 
@@ -187,18 +187,18 @@
 								daily_table.addColumn('number', 'Visits');\n";
 
 		while ( $row = mysql_fetch_array( $daily_result ) ) {
-			$daily_js .= "daily_data.addRow([\""
+			$daily_js .= 'daily_data.addRow(["'
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
-				. "]);\n";
+				. ']);\n';
 
 			//$daily_table .= "		<tr><td>" . $row['scan_day'] . "</td><td>" . $row['COUNT( * )'] . "</td></tr>";
-			$daily_table .= "daily_table.addRow([\""
+			$daily_table .= 'daily_table.addRow(["'
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
-				. "]);\n";
+				. ']);\n';
 		}
 
 	}
@@ -232,7 +232,7 @@
 
 			// Set chart options
 			var pie_options = {    'title':<?php
-												if ($_GET["path"])
+												if ($_GET['path'])
 												{
 													echo "'Breakdown of Devices Accessing " . htmlspecialchars(mysql_real_escape_string($_GET['path'])) . "'";
 												}

@@ -6,37 +6,37 @@
 			WHERE `Datetime` between '2011-08-09' and '2011-08-10'
 	*/
 
-	include "config.php";
+	include 'config.php';
 
 	//	Connect to database
 	mysql_connect( 'localhost', $mySQL_username, $mySQL_password );
-	@mysql_select_db( $mySQL_database ) or die( "Unable to select database" );
+	@mysql_select_db( $mySQL_database ) or die( 'Unable to select database' );
 
 	// UA to search for
 	$user_agents = array(
-		"iPhone",
-		"iPad",
-		"iPod",
-		"Android",
-		"Nokia",
-		"BlackBerry",
-		"Opera",
-		"Windows Phone OS 7",
-		"MSIE 6",
-		"Bada"
+		'iPhone',
+		'iPad',
+		'iPod',
+		'Android',
+		'Nokia',
+		'BlackBerry',
+		'Opera',
+		'Windows Phone OS 7',
+		'MSIE 6',
+		'Bada'
 	);
 
 	$path = null;
 
-	if ( $_GET["path"] ) {
-		$path = mysql_real_escape_string( $_GET["path"] );
+	if ( $_GET['path'] ) {
+		$path = mysql_real_escape_string( $_GET['path'] );
 		$path_query = "AND `Path` LIKE '{$path}'";
 	}
 
 	//	The initial query
-	$query = "	SELECT COUNT(UA)
+	$query = '	SELECT COUNT(UA)
 					FROM `stats`
-					WHERE `UA` LIKE ";
+					WHERE `UA` LIKE ';
 
 	//	Get the totals
 	if ( $path ) {
@@ -160,23 +160,23 @@
 								daily_table.addColumn('number', 'Visits');\n";
 
 		while ( $row = mysql_fetch_array( $daily_result ) ) {
-			$daily_js .= "daily_data.addRow([\""
+			$daily_js .= 'daily_data.addRow(["'
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
 				. "]);\n";
 
 			//$daily_table .= "		<tr><td>" . $row['scan_day'] . "</td><td>" . $row['COUNT( * )'] . "</td></tr>";
-			$daily_table .= "daily_table.addRow([\""
+			$daily_table .= 'daily_table.addRow(["'
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
 				. "]);\n";
 		}
 	} else {
-		$daily_query = "SELECT COUNT( * ), DATE(`Datetime`) as scan_day
+		$daily_query = 'SELECT COUNT( * ), DATE(`Datetime`) as scan_day
 							FROM stats
-							GROUP BY scan_day";
+							GROUP BY scan_day';
 
 		$daily_result = mysql_query( $daily_query );
 
@@ -189,16 +189,16 @@
 								daily_table.addColumn('number', 'Visits');\n";
 
 		while ( $row = mysql_fetch_array( $daily_result ) ) {
-			$daily_js .= "daily_data.addRow([\""
+			$daily_js .= 'daily_data.addRow(["'
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
 				. "]);\n";
 
 			//$daily_table .= "		<tr><td>" . $row['scan_day'] . "</td><td>" . $row['COUNT( * )'] . "</td></tr>";
-			$daily_table .= "daily_table.addRow([\""
+			$daily_table .= 'daily_table.addRow(["'
 				. $row['scan_day']
-				. "\","
+				. '",'
 				. $row['COUNT( * )']
 				. "]);\n";
 		}
@@ -234,7 +234,7 @@
 
 			// Set chart options
 			var pie_options = {    'title':<?php
-												if ($_GET["path"])
+												if ($_GET['path'])
 												{
 													echo "'Breakdown of Devices Accessing " . htmlspecialchars(mysql_real_escape_string($_GET['path'])) . "'";
 												}

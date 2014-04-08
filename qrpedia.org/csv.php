@@ -1,6 +1,6 @@
 <?php
 
-	include "config.php";
+	include 'config.php';
 
 	//	Connect to database
 	$mysqli = new mysqli( 'localhost', $mySQL_username, $mySQL_password, $mySQL_database );
@@ -11,11 +11,11 @@
 	$path = null;
 
 	//	The initial query
-	$query = "SELECT *
-				FROM `stats`";
+	$query = 'SELECT *
+				FROM `stats`';
 
 	if ( $_GET["path"] ) {
-		$path = mysql_real_escape_string( $_GET["path"] );
+		$path = mysql_real_escape_string( $_GET['path'] );
 		$query .= " WHERE `Path` LIKE '{$path}'";
 	}
 

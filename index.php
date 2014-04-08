@@ -1,5 +1,5 @@
 <?php
-	include "config.php";
+	include 'config.php';
 
 	function getLanguageNameFromCode( $code ) {
 		global $mySQL_username;
@@ -12,16 +12,16 @@
 		/* check connection */
 		if ( !mysqli_connect_errno() ) {
 			/* change character set to utf8 */
-			$mysqli->set_charset( "utf8" );
+			$mysqli->set_charset( 'utf8' );
 
 			/* create a prepared statement */
-			if ( $stmt = $mysqli->prepare( "SELECT LanguageName
+			if ( $stmt = $mysqli->prepare( 'SELECT LanguageName
 												FROM lang
-												WHERE `Code`=?"
+												WHERE `Code`=?'
 			)
 			) {
 				/* bind parameters for markers */
-				$stmt->bind_param( "s", $code );
+				$stmt->bind_param( 's', $code );
 
 				/* execute query */
 				$stmt->execute();
@@ -150,7 +150,7 @@
 
 				if ( $article_language == $phone_language ) {
 
-					if ( $requested_language == "ca" && $phone_language == "es" ) {
+					if ( $requested_language == 'ca' && $phone_language == 'es' ) {
 						//	Catalan Fix
 						break;
 					}
@@ -187,7 +187,7 @@
 
 		//	An html list of articles - for use if a translation can't be found
 		// The first in the list will be the article in the requested languge
-		$article_list .= "<li>" . getLanguageNameFromCode( $requested_language ) . " - <a href=\"http://$requested_language.m.wikipedia.org/wiki/$request\">$request</a></li>\n";
+		$article_list .= '<li>' . getLanguageNameFromCode( $requested_language ) . " - <a href=\"http://$requested_language.m.wikipedia.org/wiki/$request\">$request</a></li>\n";
 
 		// Find out how many links were returned
 		$links_array = $results['query']['pages'][$page_id]['langlinks'];
@@ -231,7 +231,7 @@
 		//	If the URL is ca.qrwp then we do the following
 		//		Show the language select screen
 
-		if ( $requested_language == "ca" && $phone_language != "ca" ) {
+		if ( $requested_language == 'ca' && $phone_language != 'ca' ) {
 			echo "CA: En quin idioma vols llegir aquest article?<br />
 					ES: ¿En qué idioma quieres leer este artículo?<br />
 					EN: Which language would you like to read this article in?<br />";
@@ -256,5 +256,5 @@
 	}
 
 	// No request was sent - send them to the main page
-	header( "Location: http://qrpedia.org/" );
+	header( 'Location: http://qrpedia.org/' );
 	exit;
