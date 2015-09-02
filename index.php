@@ -93,7 +93,7 @@
 
 		//	If the phone's language is the same as the requested language (eg en-gb & en.qrwp) do the redirection without a call to Wikipedia 
 		if ( $phone_language == $requested_language ) {
-			$mobile_url = "http://$requested_language.m.wikipedia.org/wiki/" . $request;
+			$mobile_url = "https://$requested_language.m.wikipedia.org/wiki/" . $request;
 			writeLog( urldecode( $mobile_url ) );
 			header( "Location: $mobile_url" );
 			exit;
@@ -101,8 +101,8 @@
 
 		// Find the correct URL for redirection
 		/*
-		Wikipedia API Documentation at http://en.wikipedia.org/w/api.php
-		http://en.wikipedia.org/w/api.php?action=query&
+		Wikipedia API Documentation at https://en.wikipedia.org/w/api.php
+		https://en.wikipedia.org/w/api.php?action=query&
 				prop=info|langlinks&		//	Get page info and alternate languages
 				lllimit=200&				//	Max number of languages to return
 				llurl&						//	Get the URLs of alternate languages
@@ -112,7 +112,7 @@
 		*/
 
 		// Construct the API call - this is to the $requested_language Wikipedia
-		$api_call = "http://$requested_language.wikipedia.org/w/api.php?action=query&prop=info|langlinks&lllimit=200&llurl&titles=$request&redirects=&format=json";
+		$api_call = "https://$requested_language.wikipedia.org/w/api.php?action=query&prop=info|langlinks&lllimit=200&llurl&titles=$request&redirects=&format=json";
 
 		// Use CURL to retrieve the information
 		$curl_handle = curl_init();
@@ -179,7 +179,7 @@
 			//	Send them to their native Wikipedia so they can search for themselves
 
 			//writeLog("404");
-			//header("Location: http://$phone_language.m.wikipedia.org/");
+			//header("Location: https://$phone_language.m.wikipedia.org/");
 			//exit;
 		}
 
@@ -187,7 +187,7 @@
 
 		//	An html list of articles - for use if a translation can't be found
 		// The first in the list will be the article in the requested language
-		$article_list .= '<li>' . getLanguageNameFromCode( $requested_language ) . " - <a href=\"http://$requested_language.m.wikipedia.org/wiki/$request\">$request</a></li>\n";
+		$article_list .= '<li>' . getLanguageNameFromCode( $requested_language ) . " - <a href=\"https://$requested_language.m.wikipedia.org/wiki/$request\">$request</a></li>\n";
 
 		// Find out how many links were returned
 		$links_array = $results['query']['pages'][$page_id]['langlinks'];
